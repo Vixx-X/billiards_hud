@@ -13,7 +13,7 @@ class MediaManager:
 
 
     def ready(self):
-        return self.cap and self.cap.isOpened()
+        return self.cap and self.cap.isOpened() and self.frame is not None
 
     def open(self, filename):
         self.video_filename = filename
@@ -75,6 +75,15 @@ class MediaManager:
 
     def get_frame(self):
         return self.frame
+
+    def get_next_frame(self):
+        return self.get_frame()
+
+    def get_next_processed_frame(self):
+        img = self.get_next_frame()
+        # frame = pipeline(img)
+        return img
+
 
 
 manager = MediaManager()

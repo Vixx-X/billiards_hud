@@ -1,68 +1,53 @@
 # -*- coding: utf-8 -*-
+import cv2
 import glfw
 import OpenGL.GL as gl
 
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
-def open_file():
-    import tkinter as tk
-    from tkinter import filedialog
+from gui import gui
 
-    tk.Tk().withdraw() # we dont want full GUI
+from managers.media import manager as Media
 
-    filename = filedialog.askopenfilename(
-        initialdir=".",
-        title="Select the Billiard Game",
-        filetypes=(
-            ("mkv files", "*.mkv"),
-            ("mp4 files", "*.mp4"),
-            ("all files", "*"),
-        )
-    )
-    if filename:
-        manager.open(filename)
 
-def debug_panel():
-    imgui.begin("Debug Metric")
-    imgui.text("Bar")
-    imgui.text_ansi("B\033[31marA\033[mnsi ")
-    imgui.text_ansi_colored("Eg\033[31mgAn\033[msi ", 0.2, 1., 0.)
-    imgui.extra.text_ansi_colored("Eggs", 0.2, 1., 0.)
-    imgui.end()
+def convertMat2Tex(mat):
+    # convert to RGB
+    mat = cv2.cvtColor(mat, cv2.COLOR_BGR2RGB)
+    # flip for GL
+    mat = cv2.flip(mat, -1)
+    # return data
+    return mat
 
-def menu_bar():
-    if imgui.begin_main_menu_bar():
-        if imgui.begin_menu("File", True):
+def refresh2d(width, height):
+    gl.glViewport(0, 0, width, height)
+    gl.glMatrixMode(gl.GL_PROJECTION)
+    gl.glLoadIdentity()
+    gl.glOrtho(0.0, width, 0.0, height, 0.0, 1.0)
+    gl.glMatrixMode (gl.GL_MODELVIEW)
+    gl.glLoadIdentity()
 
-            clicked_open, selected_open = imgui.menu_item(
-                "Open", 'Cmd+O', False, True
-            )
-
-            if clicked_open:
-                open_file()
-
-            clicked_quit, selected_quit = imgui.menu_item(
-                "Quit", 'Cmd+Q', False, True
-            )
-
-            if clicked_quit:
-                exit(1)
-
-            imgui.end_menu()
-        imgui.end_main_menu_bar()
-
-def gui():
-    imgui.new_frame()
-    menu_bar()
-    debug_panel()
-    imgui.show_test_window()
+def draw_rect(x, y, width, height):
+    gl.glBegin(gl.GL_QUADS)                 # start drawing a rectangle
+    gl.glVertex2f(x, y)                     # bottom left point
+    gl.glVertex2f(x + width, y)             # bottom right point
+    gl.glVertex2f(x + width, y + height)    # top right point
+    gl.glVertex2f(x, y + height)            # top left point
+    gl.glEnd()
 
 def main():
     # Create a windowed mode window and its OpenGL context
     imgui.create_context()
     window = impl_glfw_init()
     impl = GlfwRenderer(window)
+
+
+    # texID = gl.glGenTextures(1)
+    # gl.glBindTexture(gl.GL_TEXTURE_2D, texID)
+    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
+    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
+    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
 
     # Loop until the user closes the window
     while not glfw.window_should_close(window):
@@ -73,9 +58,35 @@ def main():
         # Place ImGUI
         gui()
 
-        # Get texture from video frame
-        gl.glClearColor(1., 1., 1., 1)
+        # clear the screen
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+        # refresh2d(1000, 1000)                    # set mode to 2d
+        gl.glColor3f(0.0, 0.0, 1.0)              # set color to blue
+        draw_rect(10, 10, 200, 100)              # rect at (10, 10) with width 200, height 100
+
+
+        # Get texture from video frame
+        # if Media.ready():
+        #     frame = Media.get_next_processed_frame()
+        #     texture = convertMat2Tex(frame)
+        #     height, width, _ = texture.shape
+        #     gl.glTexImage2D(
+        #         gl.GL_TEXTURE_2D, 0, gl.GL_RGB, width, height,
+        #         0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE, texture
+        #     );
+        #     gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
+        #     # gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
+        #     gl.glBindTexture(gl.GL_TEXTURE_2D, texID)
+        #     gl.gl.glBegin(gl.GL_QUADS)
+        #     gl.glTexCoord2f(0, 0); gl.glVertex2f(-1, -1)
+        #     gl.glTexCoord2f(0, 1); gl.glVertex2f(-1, 1)
+        #     gl.glTexCoord2f(1, 1); gl.glVertex2f(1, 1)
+        #     gl.glTexCoord2f(1, 0); gl.glVertex2f(1, -1)
+        #     gl.glEnd()
+
+        # else:
+        #     gl.glClearColor(1., 1., 1., 1)
+        #     gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
         # Render gui and video
         imgui.render()
@@ -115,3 +126,6 @@ def impl_glfw_init():
         exit(1)
 
     return window
+
+if __name__=="__main__":
+    main()
