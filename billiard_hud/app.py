@@ -5,12 +5,13 @@ from pyglet import gl
 
 import imgui
 from imgui.integrations.pyglet import create_renderer
-from pyglet.gl.gl import GLubyte
+from pygarrayimage.arrayimage import ArrayInterfaceImage
 
 from gui import gui
 from managers.media import manager as Media
 
 WIDTH, HEIGHT = 1280, 720
+image = None
 
 def main():
 
@@ -20,24 +21,29 @@ def main():
     impl = create_renderer(window)
 
     def update(dt):
+        global image
+
         # Place ImGUI components
         gui()
 
         if Media.ready():
-            frame = Media.get_next_processed_frame()
-            w, h, c = frame.shape
-            rawData = (GLubyte * w*h*c)(*frame.flatten())
-            image_data = pyglet.image.ImageData(frame, w, h, 'BGR', rawData)
-            image_data.blit(0,0)
+            frame = Media.get_next_frame()
+            image = ArrayInterfaceImage(frame)
+        else:
+            image = None
 
 
     def draw(dt):
+        global image
+
         update(dt)
         window.clear()
+        if image is not None:
+            image.blit(0, 0, 0)
         imgui.render()
         impl.render(imgui.get_draw_data())
 
-    pyglet.clock.schedule_interval(draw, 1/60.)
+    pyglet.clock.schedule_interval(draw, 1/120.)
     pyglet.app.run()
     impl.shutdown()
 

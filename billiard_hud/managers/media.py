@@ -13,7 +13,7 @@ class MediaManager:
 
 
     def ready(self):
-        return self.cap and self.cap.isOpened() and self.frame is not None
+        return self.cap and self.cap.isOpened()
 
     def open(self, filename):
         self.video_filename = filename
@@ -23,7 +23,7 @@ class MediaManager:
         self.start = 0
         self.frame_id = 0
 
-        Thread(target=self.read, args=()).start()
+        # Thread(target=self.read, args=()).start()
 
     def set_frame(self, frame_id):
         self.frame = min(self.end, max(self.start, frame_id))
@@ -50,39 +50,33 @@ class MediaManager:
         self.stopped = True
 
     def read(self):
-        while True:
-            if self.stopped:
-                self.frame = None
-                continue
+        if self.stopped:
+            self.frame = None
+            return
 
-            if self.frame_id >= self.end:
-                self.frame = None
-                break
+        if self.frame_id >= self.end:
+            self.frame = None
+            return
 
-            ok, frame = self.cap.read()
+        ok, frame = self.cap.read()
 
-            if not ok:
-                self.frame = None
-                break
+        if not ok:
+            self.frame = None
+            return
 
-            self.frame_id += 1
+        self.frame_id += 1
 
-            if self.frame_id == self.end:
-                self.close()
+        if self.frame_id == self.end:
+            self.close()
 
-            self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-            sleep(0.02)
+        self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     def get_frame(self):
         return self.frame
 
     def get_next_frame(self):
+        self.read()
         return self.get_frame()
-
-    def get_next_processed_frame(self):
-        img = self.get_next_frame()
-        # frame = pipeline(img)
-        return img
 
 
 
