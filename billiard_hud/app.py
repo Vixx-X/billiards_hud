@@ -10,30 +10,69 @@ from gui import gui
 
 from managers.media import manager as Media
 
+WIDTH, HEIGHT = 1280, 720
 
 def convertMat2Tex(mat):
     # convert to RGB
-    mat = cv2.cvtColor(mat, cv2.COLOR_BGR2RGB)
+    # mat = cv2.cvtColor(mat, cv2.COLOR_BGR2RGB)
     # flip for GL
-    mat = cv2.flip(mat, -1)
+    # mat = cv2.flip(mat, -1)
     # return data
     return mat
 
-def refresh2d(width, height):
-    gl.glViewport(0, 0, width, height)
+bitmap_tex = None
+def blit_image(x,y,img,r,g,b):
+    global bitmap_tex
+
+    # get texture data
+    w,h,_ = img.shape
+    data = img
+
+    # create texture object
+    if bitmap_tex == None:
+        bitmap_tex = gl.glGenTextures(1)
+    gl.glBindTexture(gl.GL_TEXTURE_2D, bitmap_tex)
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+    gl.glTexImage2D(gl.GL_TEXTURE_2D,0,gl.GL_RGB,w,h,0,gl.GL_BGR,gl.GL_UNSIGNED_BYTE,data)
+
+    # save and set model view and projection matrix
     gl.glMatrixMode(gl.GL_PROJECTION)
+    gl.glPushMatrix()
     gl.glLoadIdentity()
-    gl.glOrtho(0.0, width, 0.0, height, 0.0, 1.0)
-    gl.glMatrixMode (gl.GL_MODELVIEW)
+    gl.glOrtho(0, w, 0, h, -1, 1)
+    gl.glMatrixMode(gl.GL_MODELVIEW)
+    gl.glPushMatrix()
     gl.glLoadIdentity()
 
-def draw_rect(x, y, width, height):
-    gl.glBegin(gl.GL_QUADS)                 # start drawing a rectangle
-    gl.glVertex2f(x, y)                     # bottom left point
-    gl.glVertex2f(x + width, y)             # bottom right point
-    gl.glVertex2f(x + width, y + height)    # top right point
-    gl.glVertex2f(x, y + height)            # top left point
+    # enable blending
+    # gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+    # gl.glEnable(gl.GL_BLEND)
+
+    # draw textured quad
+    gl.glColor3f(r,g,b)
+
+    gl.glEnable(gl.GL_TEXTURE_2D)
+    gl.glBegin(gl.GL_QUADS)
+    gl.glTexCoord2f(0, 1)
+    gl.glVertex2f(x, y)
+    gl.glTexCoord2f(1, 1)
+    gl.glVertex2f(x+w, y)
+    gl.glTexCoord2f(1, 0)
+    gl.glVertex2f(x+w, y+h)
+    gl.glTexCoord2f(0, 0)
+    gl.glVertex2f(x, y+h)
     gl.glEnd()
+    gl.glDisable(gl.GL_TEXTURE_2D)
+
+    # restore matrices
+    gl.glMatrixMode(gl.GL_PROJECTION)
+    gl.glPopMatrix()
+    gl.glMatrixMode(gl.GL_MODELVIEW)
+    gl.glPopMatrix()
+
+    # disable blending
+    # gl.glDisable(gl.GL_BLEND)
 
 def main():
     # Create a windowed mode window and its OpenGL context
@@ -41,52 +80,23 @@ def main():
     window = impl_glfw_init()
     impl = GlfwRenderer(window)
 
-
-    # texID = gl.glGenTextures(1)
-    # gl.glBindTexture(gl.GL_TEXTURE_2D, texID)
-    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
-    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
-    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
-    # gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
-
     # Loop until the user closes the window
     while not glfw.window_should_close(window):
         # Poll for and process events
         glfw.poll_events()
         impl.process_inputs()
 
-        # Place ImGUI
-        gui()
-
-        # clear the screen
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-        # refresh2d(1000, 1000)                    # set mode to 2d
-        gl.glColor3f(0.0, 0.0, 1.0)              # set color to blue
-        draw_rect(10, 10, 200, 100)              # rect at (10, 10) with width 200, height 100
-
-
         # Get texture from video frame
-        # if Media.ready():
-        #     frame = Media.get_next_processed_frame()
-        #     texture = convertMat2Tex(frame)
-        #     height, width, _ = texture.shape
-        #     gl.glTexImage2D(
-        #         gl.GL_TEXTURE_2D, 0, gl.GL_RGB, width, height,
-        #         0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE, texture
-        #     );
-        #     gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
-        #     # gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
-        #     gl.glBindTexture(gl.GL_TEXTURE_2D, texID)
-        #     gl.gl.glBegin(gl.GL_QUADS)
-        #     gl.glTexCoord2f(0, 0); gl.glVertex2f(-1, -1)
-        #     gl.glTexCoord2f(0, 1); gl.glVertex2f(-1, 1)
-        #     gl.glTexCoord2f(1, 1); gl.glVertex2f(1, 1)
-        #     gl.glTexCoord2f(1, 0); gl.glVertex2f(1, -1)
-        #     gl.glEnd()
+        if Media.ready():
+            frame = Media.get_next_processed_frame()
+            texture = convertMat2Tex(frame)
+            blit_image(0, 0, texture, 1., 1., 1.)
+        else:
+            gl.glClearColor(1., 1., 1., 1)
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-        # else:
-        #     gl.glClearColor(1., 1., 1., 1)
-        #     gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+        # Place ImGUI components
+        gui()
 
         # Render gui and video
         imgui.render()
@@ -100,7 +110,7 @@ def main():
 
 
 def impl_glfw_init():
-    width, height = 1280, 720
+    width, height = WIDTH, HEIGHT
     window_name = "Project #3 - Billiard HUD"
 
     if not glfw.init():
