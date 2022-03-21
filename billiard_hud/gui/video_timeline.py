@@ -1,3 +1,6 @@
+
+#CAMBIAR
+
 import tkinter as tk
 from tkinter import filedialog
 from media_manager import manager

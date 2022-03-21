@@ -9,6 +9,7 @@ from pygarrayimage.arrayimage import ArrayInterfaceImage
 
 from gui import gui
 from managers.media import manager as Media
+from pipeline import compile_pipeline, pipeline
 
 WIDTH, HEIGHT = 1280, 720
 image = None
@@ -20,6 +21,8 @@ def main():
     imgui.create_context()
     impl = create_renderer(window)
 
+    compile_pipeline()
+
     def update(dt):
         global image
 
@@ -28,7 +31,8 @@ def main():
 
         if Media.ready():
             frame = Media.get_next_frame()
-            image = ArrayInterfaceImage(frame)
+            process_image = pipeline(frame)
+            image = ArrayInterfaceImage(process_image)
         else:
             image = None
 
