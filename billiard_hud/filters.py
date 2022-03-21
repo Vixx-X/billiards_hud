@@ -3,6 +3,7 @@ import cv2
 import imgui
 from managers.pipeline import Stage
 import numpy as np
+import colorsys
 
 
 class BlurStage(Stage):
@@ -31,37 +32,28 @@ class MaskStage(Stage):
         # Here we are defining range of bluecolor in HSV
         # This creates a mask of blue coloured 
         # objects found in the frame.
-        return cv2.inRange(hsv, self.lower, self.upper)
+        ret = cv2.inRange(hsv, self.lower, self.upper)
+        return ret
 
     def filter_ui(self):
         changed, value = imgui.color_edit3(
             "Lower",
-            *(self.lower/255.),
-            imgui.COLOR_EDIT_HSV
+            *colorsys.hsv_to_rgb(*(self.lower/255.))
         )
         if changed:
-            breakpoint()
-            self.lower = np.array(value)
+            self.lower = np.clip(np.array(
+                colorsys.rgb_to_hsv(*np.array(value))
+            ) * 255, 0, 255)
 
-        color = [
-            float(0.),
-            float(0.),
-            float(0.),
-        ]
 
         changed, value = imgui.color_edit3(
             "Upper",
-            # *(self.upper/255.),
-            # *(
-            #     float(self.upper[0])/255,
-            #     float(self.upper[1])/255,
-            #     float(self.upper[2])/255,
-            # ),
-            *color,
-            imgui.COLOR_EDIT_HSV
+            *colorsys.hsv_to_rgb(*(self.upper/255.))
         )
         if changed:
-            self.upper = np.array(value)
+            self.upper = np.clip(np.array(
+                colorsys.rgb_to_hsv(*np.array(value))
+            ) * 255, 0, 255)
 
 
 

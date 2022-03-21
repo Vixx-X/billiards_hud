@@ -1,47 +1,43 @@
+import imgui
+from managers.media import manager as Media
 
-#CAMBIAR
+def video_panel():
 
-import tkinter as tk
-from tkinter import filedialog
-from media_manager import manager
+    if Media.ready():
+        imgui.begin("Video")
 
-class VideoTimeLine(tk.Frame):
-    video_state = 0
-
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        self.parent = parent
-
-        self.open_file_button = tk.Button(
-            self,
-            text="Open file",
-            command=self.open_file_explorer,
-        )
-        self.play_stop_button = tk.Button(
-            self,
-            text="Play/Stop",
-            command=self.toggle_video,
+        changed, _ = imgui.checkbox(
+            label="Play/Stop",
+            state=Media.stopped,
         )
 
-        self.open_file_button.pack()
-        self.play_stop_button.pack()
+        if changed:
+            Media.toggle()
 
-    def toggle_video(self):
-        self.video_state = 1 - self.video_state
-        if self.video_state:
-            self.parent.play()
-        else:
-            self.parent.stop()
 
-    def open_file_explorer(self):
-        filename = filedialog.askopenfilename(
-            initialdir=".",
-            title="Select the Billiard Game",
-            filetypes=(
-                ("mkv files", "*.mkv"),
-                ("mp4 files", "*.mp4"),
-                ("all files", "*"),
-            )
-        )
-        if filename:
-            manager.open(filename)
+        changed, frame = imgui.slider_int(
+                  label="current frame",
+                  value=Media.frame_id,
+                  min_value=Media.start,
+                  max_value=Media.end)
+
+        if changed:
+            Media.set_frame(frame)
+
+
+        changed, (start, end) = imgui.drag_int2(
+                  label=f"frame range ({Media.start}, {Media.end})",
+                  value0=Media.start,
+                  value1=Media.end,
+                  change_speed=1,
+                  min_value=0,
+                  max_value=Media.frame_size,
+                  format="%d")
+
+        if changed:
+            Media.set_start(start)
+            Media.set_end(end)
+
+        imgui.end()
+
+

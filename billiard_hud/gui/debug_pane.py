@@ -4,7 +4,7 @@ from managers.debug import Debug
 def debug_panel():
     imgui.begin("Debug Metric")
 
-    imgui.label_text("FPS", f"{int(Debug.get_fps())} ms")
+    imgui.label_text("FPS", f"{int(Debug.get_fps())}")
 
     if imgui.tree_node("Timers"):
         for name, time in Debug.get_times().items():

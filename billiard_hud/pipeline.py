@@ -15,6 +15,7 @@ def compile_pipeline():
 
     Pipeline("Output")
 
+
 def pipeline(img):
     original = Pipeline.run("Original", img)
 
@@ -28,5 +29,8 @@ def pipeline(img):
     Pipeline.run("Contour", opening_image)
     Pipeline.run("HoughLines", opening_image)
 
-    return Pipeline.run("Output", original)
+    last_image = Pipeline.get_image()
+    return Pipeline.run("Output", original if last_image is None else last_image)
+
+
 

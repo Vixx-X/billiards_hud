@@ -4,19 +4,19 @@ from time import time
 class DebugManager:
     logs = []
     timers = dict()
-    fps = None
+    ptime = None
 
     def clear_times(self):
         self.timers = dict()
 
     def get_fps(self):
         timer = time()
-        if self.fps is None:
-            self.fps = timer
+        if self.ptime is None:
+            self.ptime = timer
             return 0
-        prev = self.fps
-        self.fps = timer
-        return 1/((timer - prev)*1000)
+        ret = 1/((timer - self.ptime))
+        self.ptime = timer
+        return ret
 
     def __call__(self, text):
         self.logs.append(text)

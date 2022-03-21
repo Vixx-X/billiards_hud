@@ -165,6 +165,7 @@ def pipeline(img):
     # objects found in the frame.
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
     draw(mask, "mask")
+
     close_mask = cv2.morphologyEx(
         mask,
         cv2.MORPH_CLOSE,
@@ -259,7 +260,8 @@ def show_images(images):
 
 if __name__ == "__main__":
     # Create a VideoCapture object and read from input file
-    cap = cv2.VideoCapture('../media/Three-Cushion Billiards Top View [F4SqfOvE21g].mkv')
+    cap = cv2.VideoCapture('../../media/Three-Cushion Billiards Top View [F4SqfOvE21g].mkv')
+    # cap = cv2.VideoCapture(0)
     pTime = time.time()
 
     # Check if camera opened successfully
