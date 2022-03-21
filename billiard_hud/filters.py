@@ -17,7 +17,26 @@ class BlurStage(Stage):
         return img
 
     def filter_ui(self):
-        pass
+        changed, value = imgui.slider_int(
+            "Iterations",
+            value=self.iterations,
+            min_value=0,
+            max_value=10,
+        )
+        if changed:
+            self.iterations = value
+
+        changed, value = imgui.slider_int2(
+            "Kernel shape",
+            value0=self.kernel_shape[0],
+            value1=self.kernel_shape[1],
+            min_value=3,
+            max_value=27,
+            format="%d",
+        )
+        if changed:
+            self.kernel_shape = value
+
 
 
 
@@ -69,4 +88,13 @@ class CloseStage(Stage):
         )
 
     def filter_ui(self):
-        pass
+        changed, value = imgui.slider_int2(
+            "Kernel shape",
+            value0=self.kernel_shape[0],
+            value1=self.kernel_shape[1],
+            min_value=3,
+            max_value=27,
+            format="%d",
+        )
+        if changed:
+            self.kernel_shape = value

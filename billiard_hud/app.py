@@ -42,8 +42,10 @@ def main():
                 Debug.time("Processing")
                 process_image = pipeline(frame)
                 process_image = cv2.flip(process_image, 0) # OpenGL weird
-                image = ArrayInterfaceImage(process_image)
                 Debug.time("Processing")
+                Debug.time("Bliting to Tex")
+                image = ArrayInterfaceImage(process_image)
+                Debug.time("Bliting to Tex")
                 return
 
         image = None
