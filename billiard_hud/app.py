@@ -73,7 +73,7 @@ def main():
         imgui.render()
         impl.render(imgui.get_draw_data())
 
-    pyglet.clock.schedule_interval(draw, 1/120.)
+    pyglet.clock.schedule_interval(draw, 1/60.)
     pyglet.app.run()
     impl.shutdown()
 
