@@ -1,6 +1,7 @@
 import imgui
 from managers.debug import Debug
 
+
 def debug_panel():
     imgui.begin("Debug Metric")
 
@@ -13,7 +14,9 @@ def debug_panel():
 
     if imgui.tree_node("Texts"):
         for name, text in Debug.get_texts().items():
-            imgui.label_text(name, text)
+            if imgui.tree_node(name):
+                imgui.text_wrapped(text)
+                imgui.tree_pop()
         imgui.tree_pop()
 
     if imgui.tree_node("Logs"):
@@ -21,15 +24,11 @@ def debug_panel():
             imgui.text(log)
         imgui.tree_pop()
 
-
     changed, value = imgui.slider_int(
-              label="down/up sampling",
-              value=Debug.scale_factor,
-              min_value=1,
-              max_value=10)
+        label="down/up sampling", value=Debug.scale_factor, min_value=1, max_value=10
+    )
 
     if changed:
         Debug.scale_factor = value
-
 
     imgui.end()

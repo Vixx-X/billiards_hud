@@ -7,7 +7,7 @@ cimg = cv2.imread("C:/Users/Gaby/Desktop/Proof Images/calidad.jpg")
 cv2.imshow("origin", cimg)
 cv2.waitKey(0)
 img = cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY)
-img = cv2.medianBlur(img, 5)
+img = cv2.blur(img, (3, 3))
 cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
 # - img: grayscale image to be detected

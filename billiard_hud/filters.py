@@ -100,12 +100,31 @@ class MaskingStage(Stage):
         return cv2.bitwise_or(img, img, mask=mask)
 
 
+class CannyStage(Stage):
+    thresh = 30
+
+    def run(self, img, draw):
+        return cv2.Canny(img, self.thresh / 2, self.thresh)
+
+    def filter_ui(self):
+        changed, value = imgui.slider_float(
+            "thresh",
+            value=self.thresh,
+            min_value=1.0,
+            max_value=100.0,
+            format="%f",
+        )
+
+        if changed:
+            self.thresh = value
+
+
 class ContourStage(Stage):
     counter_stage = None
     eps = 0.1
 
     def run(self, images, draw):
-        (img, original) = images
+        (original, img) = images
         # if self.counter_stage is None:
         #     self.counter_stage = img
 
@@ -142,14 +161,14 @@ class ContourStage(Stage):
 class HoughCirclesStage(Stage):
     method = cv2.HOUGH_GRADIENT
     dp = 1
-    minDist = 20
-    param1 = 50
-    param2 = 40
-    minRadius = 4
-    maxRadius = 0
+    minDist = 1
+    param1 = 30
+    param2 = 20
+    minRadius = 0
+    maxRadius = 10
 
-    def run(self, img, draw):
-
+    def run(self, images, draw):
+        original, img = images
         circles = cv2.HoughCircles(
             img,
             self.method,
@@ -162,19 +181,24 @@ class HoughCirclesStage(Stage):
         )
         out = 0 if circles is None else len(circles)
         Debug.text("Circles", f"{out}")
+
+        Debug.text("Circles canales", f"{img.shape}")
         Debug.text(
             "Circles mindist",
             f"minDist: {self.minDist}, r1: {self.minRadius}, r2: {self.maxRadius} ",
         )
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        if circles is not None and draw:
-            for i in circles:
-                # draw the outer circle
-                cv2.circle(img, (i[0], i[1]), i[2], (0, 255, 0), 2)
-                # draw the center of the circle
-                cv2.circle(img, (i[0], i[1]), 2, (0, 0, 255), 3)
+        if circles is not None:
+            Debug.text("Circles 2", f"{circles}")
+            circles = np.uint16(np.around(circles))
+            if draw:
+                for i in circles[0]:
+                    cv2.circle(original, (i[0], i[1]), i[2], (0, 255, 0), -1)
+                    # draw the outer circle
 
-        return img
+                    # draw the center of the circle
+                    # cv2.circle(original, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+        return original
 
     def filter_ui(self):
         changed, value = imgui.slider_float(
@@ -188,35 +212,35 @@ class HoughCirclesStage(Stage):
         if changed:
             self.minDist = value
 
-        #         changed, value = imgui.slider_int(
-        #             "DP",
-        #             value=self.dp,
-        #             min_value=1,
-        #             max_value=10,
-        #         )
+        changed, value = imgui.slider_int(
+            "DP",
+            value=self.dp,
+            min_value=1,
+            max_value=10,
+        )
 
-        #         if changed:
-        #             self.dp = value
+        if changed:
+            self.dp = value
 
-        # changed, value = imgui.slider_int(
-        #     "PARAM 1",
-        #     value=self.param1,
-        #     min_value=0,
-        #     max_value=100,
-        # )
+        changed, value = imgui.slider_int(
+            "PARAM 1",
+            value=self.param1,
+            min_value=0,
+            max_value=100,
+        )
 
-        # if changed:
-        #     self.param1 = value
+        if changed:
+            self.param1 = value
 
-        # changed, value = imgui.slider_int(
-        #     "PARAM 2",
-        #     value=self.param2,
-        #     min_value=0,
-        #     max_value=100,
-        # )
+        changed, value = imgui.slider_int(
+            "PARAM 2",
+            value=self.param2,
+            min_value=0,
+            max_value=100,
+        )
 
-        # if changed:
-        #     self.param2 = value
+        if changed:
+            self.param2 = value
 
         changed, (start, end) = imgui.drag_int2(
             label="Radius Range",
