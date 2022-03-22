@@ -100,23 +100,28 @@ class MaskingStage(Stage):
         return cv2.bitwise_or(img, img, mask=mask)
 
 
-class CannyStage(Stage):
-    thresh = 30
+# class CannyStage(Stage):
+#     thresh = 30
 
-    def run(self, img, draw):
-        return cv2.Canny(img, self.thresh / 2, self.thresh)
+#     def run(self, img, draw):
+#         return cv2.Canny(img, self.thresh / 2, self.thresh)
 
-    def filter_ui(self):
-        changed, value = imgui.slider_float(
-            "thresh",
-            value=self.thresh,
-            min_value=1.0,
-            max_value=100.0,
-            format="%f",
-        )
+#     def filter_ui(self):
+#         changed, value = imgui.slider_float(
+#             "thresh",
+#             value=self.thresh,
+#             min_value=1.0,
+#             max_value=100.0,
+#             format="%f",
+#         )
 
-        if changed:
-            self.thresh = value
+#         if changed:
+#             self.thresh = value
+
+
+class RedBallStage(MaskStage):
+    lower = np.array([110.0, 0.0, 0.0])
+    upper = np.array([130.0, 255.0, 255.0])
 
 
 class ContourStage(Stage):
@@ -156,102 +161,3 @@ class ContourStage(Stage):
         )
         if changed:
             self.eps = value
-
-
-class HoughCirclesStage(Stage):
-    method = cv2.HOUGH_GRADIENT
-    dp = 1
-    minDist = 1
-    param1 = 30
-    param2 = 20
-    minRadius = 0
-    maxRadius = 10
-
-    def run(self, images, draw):
-        original, img = images
-        circles = cv2.HoughCircles(
-            img,
-            self.method,
-            self.dp,
-            self.minDist,
-            param1=self.param1,
-            param2=self.param2,
-            minRadius=self.minRadius,
-            maxRadius=self.maxRadius,
-        )
-        out = 0 if circles is None else len(circles)
-        Debug.text("Circles", f"{out}")
-
-        Debug.text("Circles canales", f"{img.shape}")
-        Debug.text(
-            "Circles mindist",
-            f"minDist: {self.minDist}, r1: {self.minRadius}, r2: {self.maxRadius} ",
-        )
-        if circles is not None:
-            Debug.text("Circles 2", f"{circles}")
-            circles = np.uint16(np.around(circles))
-            if draw:
-                for i in circles[0]:
-                    cv2.circle(original, (i[0], i[1]), i[2], (0, 255, 0), -1)
-                    # draw the outer circle
-
-                    # draw the center of the circle
-                    # cv2.circle(original, (i[0], i[1]), 2, (0, 0, 255), 3)
-
-        return original
-
-    def filter_ui(self):
-        changed, value = imgui.slider_float(
-            "Min distance",
-            value=self.minDist,
-            min_value=1.0,
-            max_value=100.0,
-            format="%f",
-        )
-
-        if changed:
-            self.minDist = value
-
-        changed, value = imgui.slider_int(
-            "DP",
-            value=self.dp,
-            min_value=1,
-            max_value=10,
-        )
-
-        if changed:
-            self.dp = value
-
-        changed, value = imgui.slider_int(
-            "PARAM 1",
-            value=self.param1,
-            min_value=0,
-            max_value=100,
-        )
-
-        if changed:
-            self.param1 = value
-
-        changed, value = imgui.slider_int(
-            "PARAM 2",
-            value=self.param2,
-            min_value=0,
-            max_value=100,
-        )
-
-        if changed:
-            self.param2 = value
-
-        changed, (start, end) = imgui.drag_int2(
-            label="Radius Range",
-            value0=self.minRadius,
-            value1=self.maxRadius,
-            change_speed=1,
-            min_value=0,
-            max_value=50,
-            format="%d",
-        )
-
-        if changed:
-            self.minRadius = start
-            self.maxRadius = end
