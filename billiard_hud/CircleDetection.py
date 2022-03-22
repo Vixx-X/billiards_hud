@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 
-cimg = cv2.imread("C:/Users/Gaby/Downloads/Screenshot 2022-03-21 193607.png")
+cimg = cv2.imread("C:/Users/Gaby/Desktop/Proof Images/calidad.jpg")
 cv2.imshow("origin", cimg)
 cv2.waitKey(0)
 img = cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY)
@@ -18,7 +18,9 @@ cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 # - param2: at #hough Š In the case of u gradient, it is the accumulator threshold of the center of the detection stage. The smaller it is, the more likely it is to detect false circles;
 # - minradius: minimum circle radius, false circle may also be detected
 # - maxradius: maximum circle radius. If < = 0, the maximum image size is used. If < 0, returns the center of the radius not found.
-circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20, minRadius=0, maxRadius=50)
+circles = cv2.HoughCircles(
+    img, cv2.HOUGH_GRADIENT, 1, 20, param1=30, param2=20, minRadius=0, maxRadius=0
+)
 # If the minimum circle radius is not set properly, false circles may also be detected
 # circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 20,
 #                            param1=50, param2=40, minRadius=0, maxRadius=0)

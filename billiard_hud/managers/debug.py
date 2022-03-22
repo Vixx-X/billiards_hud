@@ -20,7 +20,10 @@ class DebugManager:
         if self.ptime is None:
             self.ptime = timer
             return 0
-        ret = 1/((timer - self.ptime))
+        if(timer - self.ptime):
+            ret = 1/((timer - self.ptime))
+        else:
+            ret = 0
         self.ptime = timer
         return ret
 

@@ -123,7 +123,7 @@ class ContourStage(Stage):
             cnt = contours[max_contour]
             epsilon = self.eps * cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, epsilon, True)
-            cv2.drawContours(original, contours, -1, (255, 0, 128), 3)
+            cv2.drawContours(original, contours, -1, (255, 0, 0), 3)
             cv2.drawContours(original, [approx], -1, (125, 125, 0), 3)
         return original
 
