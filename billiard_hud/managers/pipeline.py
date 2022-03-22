@@ -6,7 +6,7 @@ class Stage:
     def __init__(self, name):
         self.id = name
 
-    def run(self, img):
+    def run(self, img, draw=False):
         return img
 
     def filter_ui(self):
@@ -48,18 +48,20 @@ class PipelineManager:
     def get_image(self):
         if self.selected_stage not in self.stages_output:
             raise Exception(f"Stage: ({self.selected_stage}) does not exists")
+
         out = self.stages_output[self.selected_stage]
+
+        if len(out.shape) == 2:
+            out = cv2.cvtColor(out, cv2.COLOR_GRAY2RGB)
+
         if not self.show_detections:
             return out
 
         return draw_detections(out)
 
     def run(self, name, img):
-        out = self.stages[name].run(img)
-        aux = out
-        if len(out.shape) == 2:
-            aux = cv2.cvtColor(out, cv2.COLOR_GRAY2RGB)
-        self.stages_output[name] = aux
+        out = self.stages[name].run(img, self.selected_stage == name)
+        self.stages_output[name] = out
         return out
 
 def draw_detections(img):

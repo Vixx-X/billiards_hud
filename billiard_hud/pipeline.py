@@ -29,7 +29,6 @@ def pipeline(img):
     Pipeline.run("Contour", closing_image)
     Pipeline.run("HoughLines", closing_image)
 
+
+def get_result():
     return Pipeline.get_image()
-
-
-

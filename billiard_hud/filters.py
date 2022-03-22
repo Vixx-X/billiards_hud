@@ -11,7 +11,7 @@ class BlurStage(Stage):
     iterations = 3
     kernel_shape = (3, 3)
 
-    def run(self, img):
+    def run(self, img, draw):
         for _ in range(self.iterations):
             img = cv2.blur(img, self.kernel_shape)
         return img
@@ -43,7 +43,7 @@ class MaskStage(Stage):
     lower = np.array([110.0, 0.0, 0.0])
     upper = np.array([130.0, 255.0, 255.0])
 
-    def run(self, img):
+    def run(self, img, draw):
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
         # Here we are defining range of bluecolor in HSV
@@ -74,7 +74,7 @@ class CloseStage(Stage):
 
     kernel_shape = (9, 9)
 
-    def run(self, img):
+    def run(self, img, draw):
         return cv2.morphologyEx(
             img,
             cv2.MORPH_CLOSE,
@@ -108,7 +108,7 @@ class HoughCirclesStage(Stage):
     minRadius = 4
     maxRadius = 0
 
-    def run(self, img):
+    def run(self, img, draw):
 
         circles = cv2.HoughCircles(
             img,
@@ -126,8 +126,8 @@ class HoughCirclesStage(Stage):
             "Circles mindist",
             f"minDist: {self.minDist}, r1: {self.minRadius}, r2: {self.maxRadius} ",
         )
-        # img = cv2.cvtColor(img, cv2.GRAY2RGB)
-        if circles is not None:
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        if circles is not None and draw:
             for i in circles:
                 # draw the outer circle
                 cv2.circle(img, (i[0], i[1]), i[2], (0, 255, 0), 2)

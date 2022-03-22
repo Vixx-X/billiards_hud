@@ -11,7 +11,7 @@ from pygarrayimage.arrayimage import ArrayInterfaceImage
 from gui import gui
 from managers.debug import Debug
 from managers.media import manager as Media
-from pipeline import compile_pipeline, pipeline
+from pipeline import compile_pipeline, pipeline, get_result
 
 WIDTH, HEIGHT = 1280, 720
 image = None
@@ -40,10 +40,13 @@ def main():
 
             if frame is not None:
                 Debug.time("Processing")
+
                 down = 1/Debug.scale_factor
                 half_frame = cv2.resize(frame, None, fx=down, fy=down)
 
-                process_image = pipeline(half_frame)
+                pipeline(half_frame)
+
+                process_image = get_result()
                 half_out = cv2.flip(process_image, 0) # OpenGL weird
 
                 up = Debug.scale_factor
