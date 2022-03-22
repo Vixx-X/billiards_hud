@@ -1,4 +1,11 @@
-from filters import BlurStage, CloseStage, MaskStage, HoughCirclesStage, MaskingStage, ContourStage
+from filters import (
+    BlurStage,
+    CloseStage,
+    MaskStage,
+    HoughCirclesStage,
+    MaskingStage,
+    ContourStage,
+)
 from managers.pipeline import manager as Pipeline
 
 
@@ -26,7 +33,7 @@ def pipeline(img):
 
     # detectors stages
     Pipeline.run("HoughCircles", closing_image)
-    Pipeline.run("Contour", closing_image)
+    Pipeline.run("Contour", (closing_image, original))
     Pipeline.run("HoughLines", closing_image)
 
 

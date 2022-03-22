@@ -99,9 +99,45 @@ class MaskingStage(Stage):
         img, mask = images
         return cv2.bitwise_or(img, img, mask=mask)
 
+
 class ContourStage(Stage):
-    def run(self, img):
-        return cv2.findContours(img, 1, 2)
+    counter_stage = None
+    eps = 0.1
+
+    def run(self, images, draw):
+        (img, original) = images
+        # if self.counter_stage is None:
+        #     self.counter_stage = img
+
+        # avg = cv2.add(self.counter_stage, img) / 2
+
+        contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, 2)
+        max_contour = 0
+
+        for idx, contour in enumerate(contours):
+            M = cv2.moments(contour)
+            if M["m00"] > max_contour:
+                max_contour = idx
+
+        if draw:
+            cnt = contours[max_contour]
+            epsilon = self.eps * cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, epsilon, True)
+            cv2.drawContours(original, contours, -1, (255, 0, 128), 3)
+            cv2.drawContours(original, [approx], -1, (125, 125, 0), 3)
+        return original
+
+    def filter_ui(self):
+        changed, value = imgui.slider_float(
+            "EPS",
+            value=self.eps,
+            min_value=0,
+            max_value=1,
+            format="%f",
+        )
+        if changed:
+            self.eps = value
+
 
 class HoughCirclesStage(Stage):
     method = cv2.HOUGH_GRADIENT
@@ -144,23 +180,23 @@ class HoughCirclesStage(Stage):
         changed, value = imgui.slider_float(
             "Min distance",
             value=self.minDist,
-            min_value=1.,
-            max_value=100.,
+            min_value=1.0,
+            max_value=100.0,
             format="%f",
         )
 
         if changed:
             self.minDist = value
 
-#         changed, value = imgui.slider_int(
-#             "DP",
-#             value=self.dp,
-#             min_value=1,
-#             max_value=10,
-#         )
+        #         changed, value = imgui.slider_int(
+        #             "DP",
+        #             value=self.dp,
+        #             min_value=1,
+        #             max_value=10,
+        #         )
 
-#         if changed:
-#             self.dp = value
+        #         if changed:
+        #             self.dp = value
 
         # changed, value = imgui.slider_int(
         #     "PARAM 1",
