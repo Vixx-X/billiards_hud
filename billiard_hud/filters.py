@@ -99,6 +99,10 @@ class MaskingStage(Stage):
         img, mask = images
         return cv2.bitwise_or(img, img, mask=mask)
 
+class ContourStage(Stage):
+    def run(self, img):
+        return cv2.findContours(img, 1, 2)
+
 class HoughCirclesStage(Stage):
     method = cv2.HOUGH_GRADIENT
     dp = 1
