@@ -11,6 +11,11 @@ def debug_panel():
             imgui.label_text(name, f"{time*1000} ms")
         imgui.tree_pop()
 
+    if imgui.tree_node("Texts"):
+        for name, text in Debug.get_texts().items():
+            imgui.label_text(name, text)
+        imgui.tree_pop()
+
     if imgui.tree_node("Logs"):
         for log in Debug.get_logs():
             imgui.text(log)

@@ -260,7 +260,7 @@ def show_images(images):
 
 if __name__ == "__main__":
     # Create a VideoCapture object and read from input file
-    cap = cv2.VideoCapture('../../media/Three-Cushion Billiards Top View [F4SqfOvE21g].mkv')
+    cap = cv2.VideoCapture('C:/Users/Gaby/Downloads/Billar.mp4')
     # cap = cv2.VideoCapture(0)
     pTime = time.time()
 

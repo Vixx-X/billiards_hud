@@ -3,11 +3,15 @@ from time import time
 
 class DebugManager:
     logs = []
+    texts = dict()
     timers = dict()
     ptime = None
 
     def clear_times(self):
         self.timers = dict()
+    
+    def clear_texts(self):
+        self.texts = dict()
 
     def get_fps(self):
         timer = time()
@@ -29,8 +33,14 @@ class DebugManager:
         else:
             self.timers[name] = timer - start
 
+    def text(self, name, text):
+        self.texts[name] = text
+
     def get_times(self):
         return self.timers
+
+    def get_texts(self):
+        return self.texts
 
     def get_logs(self):
         return self.logs

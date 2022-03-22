@@ -11,8 +11,7 @@ def open_file():
         initialdir=".",
         title="Select the Billiard Game",
         filetypes=(
-            ("mkv files", "*.mkv"),
-            ("mp4 files", "*.mp4"),
+            ("video files", "*.mkv, *.mp4"),            
             ("all files", "*"),
         )
     )

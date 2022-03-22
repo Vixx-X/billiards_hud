@@ -1,4 +1,4 @@
-from filters import BlurStage, CloseStage, MaskStage
+from filters import BlurStage, CloseStage, MaskStage, HoughCirclesStage
 from managers.pipeline import manager as Pipeline
 
 
@@ -9,7 +9,7 @@ def compile_pipeline():
     Pipeline("Mask", MaskStage)
     Pipeline("Opening", CloseStage)
 
-    Pipeline("HoughCircles")
+    Pipeline("HoughCircles", HoughCirclesStage)
     Pipeline("Contour")
     Pipeline("HoughLines")
 
