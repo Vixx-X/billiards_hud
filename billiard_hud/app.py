@@ -40,11 +40,18 @@ def main():
 
             if frame is not None:
                 Debug.time("Processing")
-                process_image = pipeline(frame)
-                process_image = cv2.flip(process_image, 0) # OpenGL weird
+                down = 1/Debug.scale_factor
+                half_frame = cv2.resize(frame, None, fx=down, fy=down)
+
+                process_image = pipeline(half_frame)
+                half_out = cv2.flip(process_image, 0) # OpenGL weird
+
+                up = Debug.scale_factor
+                out = cv2.resize(half_out, None, fx=up, fy=up)
                 Debug.time("Processing")
+
                 Debug.time("Bliting to Tex")
-                image = ArrayInterfaceImage(process_image)
+                image = ArrayInterfaceImage(out)
                 Debug.time("Bliting to Tex")
                 return
 

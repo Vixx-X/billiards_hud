@@ -21,4 +21,15 @@ def debug_panel():
             imgui.text(log)
         imgui.tree_pop()
 
+
+    changed, value = imgui.slider_int(
+              label="down/up sampling",
+              value=Debug.scale_factor,
+              min_value=1,
+              max_value=10)
+
+    if changed:
+        Debug.scale_factor = value
+
+
     imgui.end()
