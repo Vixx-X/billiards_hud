@@ -26,6 +26,17 @@ class MediaManager:
         self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.set_frame(frame_id, 1)
 
+    def save(self, filename):
+        from managers.pipeline import manager as Pipeline
+        from managers.debug import Debug
+
+        frame = Pipeline.get_image()
+
+        up = Debug.scale_factor
+        scaled = cv2.resize(frame, None, fx=up, fy=up)
+
+        out = cv2.cvtColor(scaled, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(filename, out)
 
     def open(self, filename):
         # filename = 0

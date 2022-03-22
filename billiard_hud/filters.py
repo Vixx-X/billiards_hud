@@ -94,14 +94,19 @@ class CloseStage(Stage):
             self.kernel_shape = value
 
 
+class MaskingStage(Stage):
+    def run(self, images):
+        img, mask = images
+        return cv2.bitwise_or(img, img, mask=mask)
+
 class HoughCirclesStage(Stage):
     method = cv2.HOUGH_GRADIENT
     dp = 1
     minDist = 20
     param1 = 50
-    param2 = 30
-    minRadius = 0
-    maxRadius = 10
+    param2 = 40
+    minRadius = 4
+    maxRadius = 0
 
     def run(self, img):
 
@@ -135,43 +140,43 @@ class HoughCirclesStage(Stage):
         changed, value = imgui.slider_float(
             "Min distance",
             value=self.minDist,
-            min_value=0.0,
-            max_value=100.0,
+            min_value=1.,
+            max_value=100.,
             format="%f",
         )
 
         if changed:
             self.minDist = value
 
-        changed, value = imgui.slider_int(
-            "DP",
-            value=self.dp,
-            min_value=1,
-            max_value=10,
-        )
+#         changed, value = imgui.slider_int(
+#             "DP",
+#             value=self.dp,
+#             min_value=1,
+#             max_value=10,
+#         )
 
-        if changed:
-            self.dp = value
+#         if changed:
+#             self.dp = value
 
-        changed, value = imgui.slider_int(
-            "PARAM 1",
-            value=self.param1,
-            min_value=0,
-            max_value=100,
-        )
+        # changed, value = imgui.slider_int(
+        #     "PARAM 1",
+        #     value=self.param1,
+        #     min_value=0,
+        #     max_value=100,
+        # )
 
-        if changed:
-            self.param1 = value
+        # if changed:
+        #     self.param1 = value
 
-        changed, value = imgui.slider_int(
-            "PARAM 2",
-            value=self.param2,
-            min_value=0,
-            max_value=100,
-        )
+        # changed, value = imgui.slider_int(
+        #     "PARAM 2",
+        #     value=self.param2,
+        #     min_value=0,
+        #     max_value=100,
+        # )
 
-        if changed:
-            self.param2 = value
+        # if changed:
+        #     self.param2 = value
 
         changed, (start, end) = imgui.drag_int2(
             label="Radius Range",

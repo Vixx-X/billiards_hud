@@ -36,7 +36,8 @@ class PipelineManager:
 
         self.stages_id.append(name)
         self.stages[name] = stage(name)
-        self.selected_stage = name
+        if not self.selected_stage:
+            self.selected_stage = name
 
     def clear(self):
         self.stages_output = {}
@@ -45,13 +46,13 @@ class PipelineManager:
         self.selected_stage = stage
 
     def get_image(self):
-        if self.stages_id[-1] == self.selected_stage:
-            # last image will call this as its input
-            return None
-
         if self.selected_stage not in self.stages_output:
             raise Exception(f"Stage: ({self.selected_stage}) does not exists")
-        return self.stages_output[self.selected_stage]
+        out = self.stages_output[self.selected_stage]
+        if not self.show_detections:
+            return out
+
+        return draw_detections(out)
 
     def run(self, name, img):
         out = self.stages[name].run(img)
@@ -61,5 +62,8 @@ class PipelineManager:
         self.stages_output[name] = aux
         return out
 
+def draw_detections(img):
+    #TODO: Draw detections here
+    return img
 
 manager = PipelineManager()
