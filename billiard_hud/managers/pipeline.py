@@ -3,6 +3,7 @@ import numpy as np
 from managers.balls import manager as BallManager
 from managers.debug import Debug
 from managers.table import manager as TableManager
+from managers.stick import manager as StickManager
 
 
 class Stage:
@@ -134,6 +135,7 @@ class PipelineManager:
 def draw_detections(img):
     BallManager.draw(img)
     TableManager.draw(img)
+    StickManager.draw(img)
     return img
 
 

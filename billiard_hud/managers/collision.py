@@ -1,5 +1,6 @@
 from managers.media import manager as MediaManager
 from managers.balls import manager as Balls
+from managers.stick import manager as Stick
 from managers.table import TableSide, manager as Table
 from objects.balls import BallColor
 
@@ -81,18 +82,19 @@ class CollisionManager:
                 else:
                     self.before_state[rel_name] = False
 
-            # stick = None
-            # rel_name = f"{ball}_Stick"
-            # before = self.before_state.get(rel_name, False)
-            # if Stick.is_intercepting(b1):
-            #     if not before:
-            #         self.data["Balls"][ball]["Stick"] += 1
-            #         self.data["Stick"][ball] += 1
-            #         self.before_state[rel_name] = True
-            #         msg = f"[{frame}] Stick strike {ball}"
-            #         self.logs.append(msg)
-            # else:
-            #     self.before_state[rel_name] = True
+            rel_name = f"{ball}_Stick"
+            before = self.before_state.get(rel_name, False)
+            if Stick.collision(b1):
+                if not before:
+                    self.data["Balls"][ball]["Stick"] += 1
+                    self.data["Stick"][ball] += 1
+                    self.before_state[rel_name] = True
+                    msg = f"[{frame}] Stick strike {ball}"
+                    self.logs.append(msg)
+
+                    # clear positions on Balls
+            else:
+                self.before_state[rel_name] = False
 
             for wall in WALLS:
                 side = self.get_wall_side_by_name(wall)

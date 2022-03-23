@@ -1,37 +1,30 @@
-import enum
-
 import cv2
-from cv2 import arcLength
-import numpy as np
 
+def distance2(p1, p2):
+    return (p1[0] - p2[0])**2 + (p1[1] - p2[1])**2
 
 class StickManager:
     points = []
     length = 0
+    not_found = True
 
-    def set(self, points):
-        self.points[0][0] = points[0]
-        self.points[0][1] = points[1]
-        self.points[1][0] = points[2]
-        self.points[1][1] = points[3]
+    def set(self, points, shape):
+        cx, cy = shape[0]/2, shape[0]/2
+        self.length = max(self.length, distance2(points[:2], points[2:]))
+        if distance2(points[:2], [cx, cy]) < distance2(points[2:], [cx, cy]):
+            self.points = points
+        else:
+            self.points = points[2:] + points[:2]
+        self.not_found = False
 
-    def collision(self, side, ball):
-        if side == TableSide.TOP:
-            return ball.y - self.points[0][1] < ball.r
-        if side == TableSide.RIGTH:
-            return self.points[1][0] - ball.x < ball.r
-        if side == TableSide.DOWN:
-            return self.points[1][1] - ball.y < ball.r
-        if side == TableSide.LEFT:
-            return ball.x - self.points[0][0] < ball.r
-        return False
+    def collision(self, ball):
+        x, y = self.points[:2]
+        return (ball.x - x)**2 + (ball.y - y)**2 < ball.r**2
 
     def draw(self, img):
-        if self.fake_perspective:
-            points = [[x.tolist()] for x in self.get_points()]
-            cv2.drawContours(img, np.array([points]), -1, (125, 125, 0), 3)
-        else:
-            cv2.drawContours(img, [self.contour], -1, (125, 125, 0), 3)
+        if len(self.points) != 4 or self.not_found:
+            return
+        cv2.line(img, self.points[:2], self.points[2:], (255,0,0), 3)
 
 
 manager = StickManager()

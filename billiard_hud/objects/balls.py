@@ -4,7 +4,6 @@ from managers.media import manager as Media
 
 RADIUS = 18
 
-
 class BallColor(enum.Enum):
     ERROR = 0
     RED = 1

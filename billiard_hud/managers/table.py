@@ -43,15 +43,20 @@ class TableManager:
             # )
             self.length = cv2.arcLength(contour, True)
 
-    def collision(self, side, ball):
+    def _collision(self, side, ball):
         if side == TableSide.TOP:
-            return ball.y - self.points[0][1] < ball.r
+            return ball.y - self.points[0][1] < ball.r * 2
         if side == TableSide.RIGTH:
-            return self.points[1][0] - ball.x < ball.r
+            return self.points[1][0] - ball.x < ball.r * 2
         if side == TableSide.DOWN:
-            return self.points[1][1] - ball.y < ball.r
+            return self.points[1][1] - ball.y < ball.r * 2
         if side == TableSide.LEFT:
-            return ball.x - self.points[0][0] < ball.r
+            return ball.x - self.points[0][0] < ball.r * 2
+        return False
+
+    def collision(self, side, ball):
+        if self._collision(side, ball):
+            return True
         return False
 
     def get_points(self):

@@ -7,6 +7,7 @@ import colorsys
 
 from managers.balls import manager as BallManager
 from managers.table import manager as TableManager
+from managers.stick import manager as StickManager
 from managers.media import manager as Media
 from objects.balls import Ball, BallColor
 
@@ -207,24 +208,29 @@ class HoughLinesStage(Stage):
             minLineLength=self.minLineLength,  # Min allowed length of line
             maxLineGap=self.maxLineGap,  # Max allowed gap between line for joining them
         )
-        lines_list = []
         out = 0 if lines is None else len(lines)
         Debug.text("Num of lines", f"{out}")
         max_dist = 0
-        max_line = 0
+        max_line = None
         if lines is not None:
             Debug.text("Lines", f"{lines}")
             lines = np.uint16(np.around(lines))
-            for idx, points in enumerate(lines):
+            for points in lines:
                 # Extracted points nested in the list
                 x1, y1, x2, y2 = points[0]
                 dist = (x2 - x1) ** 2 + (y2 - y1) ** 2
                 if dist > max_dist:
                     max_dist = dist
-                    max_line = idx
-            if draw:
-                x1, y1, x2, y2 = lines[max_line][0]
-                cv2.line(original, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    max_line = points
+
+            if max_line is not None:
+                line = max_line[0]
+                StickManager.set(line, original.shape[:2])
+                if draw:
+                    x1, y1, x2, y2 = line
+                    cv2.line(original, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            else:
+                StickManager.not_found = True
 
         return original
 
