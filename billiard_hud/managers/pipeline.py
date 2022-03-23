@@ -1,6 +1,8 @@
 import cv2
+import numpy as np
 from managers.balls import manager as BallManager
 from managers.table import manager as TableManager
+
 
 class Stage:
     id = ""
@@ -57,11 +59,18 @@ class PipelineManager:
             out = cv2.cvtColor(out, cv2.COLOR_GRAY2RGB)
 
         if TableManager.fake_perspective:
-            new_p = [
-                [0, 0],[out.shape[1], 0],
-                [0, out.shape[0]],[out.shape[1], out.shape[0]],
-            ]
-            M = cv2.getPerspectiveTransform(TableManager.get_points(), new_p)
+            new_p = sorted(
+                [
+                    [0, 0],
+                    [out.shape[1], 0],
+                    [0, out.shape[0]],
+                    [out.shape[1], out.shape[0]],
+                ],
+                key=lambda k: (k[0], k[1]),
+            )
+            old_p = sorted(TableManager.get_points(), key=lambda k: (k[0], k[1]))
+            print(new_p, "Aaaa", old_p)
+            M = cv2.getPerspectiveTransform(old_p, new_p)
             out = cv2.warpPerspective(out, M, out.shape[:2])
 
         if not self.show_detections:
@@ -74,8 +83,11 @@ class PipelineManager:
         self.stages_output[name] = out
         return out
 
+
 def draw_detections(img):
     BallManager.draw(img)
+    TableManager.draw(img)
     return img
+
 
 manager = PipelineManager()

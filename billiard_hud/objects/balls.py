@@ -1,5 +1,6 @@
 import enum
 from managers.debug import Debug
+from managers.media import manager as Media
 
 RADIUS = 18
 
@@ -55,11 +56,13 @@ class Ball:
     y = 0
     color = BallColor.ERROR
     velocity = 0
+    frame = 0
 
     def __init__(self, x, y, color=None) -> None:
         self.x = x
         self.y = y
         self.color = color
+        self.frame = Media.frame_id
 
     def set_color(self, color):
         self.color = classify_color(color)

@@ -7,7 +7,7 @@ import colorsys
 
 from managers.balls import manager as BallManager
 from managers.table import manager as TableManager
-
+from managers.media import manager as Media
 from objects.balls import Ball, BallColor
 
 
@@ -218,7 +218,7 @@ class HoughLinesStage(Stage):
             for idx, points in enumerate(lines):
                 # Extracted points nested in the list
                 x1, y1, x2, y2 = points[0]
-                dist = np.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+                dist = (x2 - x1) ** 2 + (y2 - y1) ** 2
                 if dist > max_dist:
                     max_dist = dist
                     max_line = idx
@@ -301,8 +301,8 @@ class BallDetectorStage(Stage):
                     ball = p_ball
 
         if ball is not None:
-            BallManager.push(ball)
-
+            if not Media.stopped:
+                BallManager.push(ball)
             if draw:
                 cv2.circle(
                     original,
@@ -385,11 +385,10 @@ class ContourStage(Stage):
                 cnt = contour
 
         if cnt is not None:
-            TableManager.set(cnt)
-
+            epsilon = self.eps * cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, epsilon, True)
+            TableManager.set(approx)
             if draw:
-                epsilon = self.eps * cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, epsilon, True)
                 cv2.drawContours(original, contours, -1, (255, 0, 0), 3)
                 cv2.drawContours(original, [approx], -1, (125, 125, 0), 3)
 
