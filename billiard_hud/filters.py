@@ -120,8 +120,19 @@ class MaskingStage(Stage):
 
 
 class RedBallStage(MaskStage):
-    lower = np.array([110.0, 0.0, 0.0])
-    upper = np.array([130.0, 255.0, 255.0])
+    lower = np.array([147.0, 175.0, 35.0])
+    upper = np.array([207.0, 255.0, 255.0])
+
+
+class YellowBallStage(MaskStage):
+    # lower = np.array([0.0, 130.0, 140.0])
+    lower = np.array([0.0, 130.0, 100.0])
+    upper = np.array([30.0, 255.0, 255.0])
+
+
+class WhiteBallStage(MaskStage):
+    lower = np.array([0.0, 0.0, 160.0])
+    upper = np.array([30.0, 115.0, 255.0])
 
 
 class ContourStage(Stage):

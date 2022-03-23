@@ -1,16 +1,24 @@
 import cv2
-from filters import BlurStage, CloseStage, MaskStage, RedBallStage, ContourStage
+from filters import (
+    BlurStage,
+    CloseStage,
+    MaskStage,
+    RedBallStage,
+    ContourStage,
+    WhiteBallStage,
+    YellowBallStage,
+)
 from managers.pipeline import manager as Pipeline
 
 
 def compile_pipeline():
     Pipeline("Original")
-
     Pipeline("Blur", BlurStage)
     Pipeline("Mask", MaskStage)
     Pipeline("Closing", CloseStage)
     Pipeline("Red Detector", RedBallStage)
-
+    Pipeline("White Detector", WhiteBallStage)
+    Pipeline("Yellow Detector", YellowBallStage)
     Pipeline("Contour", ContourStage)
     Pipeline("HoughLines")
 
@@ -26,6 +34,8 @@ def pipeline(img):
 
     # detectors stages
     Pipeline.run("Red Detector", blur_img)
+    Pipeline.run("White Detector", blur_img)
+    Pipeline.run("Yellow Detector", blur_img)
     Pipeline.run("Contour", (original, closing_image))
     Pipeline.run("HoughLines", closing_image)
 
