@@ -7,7 +7,7 @@ class DebugManager:
     timers = dict()
     ptime = None
 
-    scale_factor = 1
+    scale_factor = 4
 
     def clear_times(self):
         self.timers = dict()
@@ -20,8 +20,8 @@ class DebugManager:
         if self.ptime is None:
             self.ptime = timer
             return 0
-        if(timer - self.ptime):
-            ret = 1/((timer - self.ptime))
+        if timer - self.ptime:
+            ret = 1 / ((timer - self.ptime))
         else:
             ret = 0
         self.ptime = timer
@@ -49,5 +49,6 @@ class DebugManager:
 
     def get_logs(self):
         return self.logs
+
 
 Debug = DebugManager()

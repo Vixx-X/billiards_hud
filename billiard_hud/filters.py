@@ -1,6 +1,9 @@
+from cmath import inf
+import math
 import cv2
 import imgui
 from managers.pipeline import Stage
+from managers.debug import Debug
 import numpy as np
 import colorsys
 
@@ -103,23 +106,104 @@ class MaskingStage(Stage):
         return cv2.bitwise_or(img, img, mask=mask)
 
 
-# class CannyStage(Stage):
-#     thresh = 30
+class CannyStage(Stage):
+    thresh = 30
 
-#     def run(self, img, draw):
-#         return cv2.Canny(img, self.thresh / 2, self.thresh)
+    def run(self, img, draw):
+        return cv2.Canny(img, self.thresh / 2, self.thresh)
 
-#     def filter_ui(self):
-#         changed, value = imgui.slider_float(
-#             "thresh",
-#             value=self.thresh,
-#             min_value=1.0,
-#             max_value=100.0,
-#             format="%f",
-#         )
+    def filter_ui(self):
+        changed, value = imgui.slider_float(
+            "thresh",
+            value=self.thresh,
+            min_value=1.0,
+            max_value=100.0,
+            format="%f",
+        )
 
-#         if changed:
-#             self.thresh = value
+        if changed:
+            self.thresh = value
+
+
+class HoughLinesStage(Stage):
+
+    rho = 1.48
+    theta = np.pi / 180
+    threshold = 100
+    minLineLength = 60
+    maxLineGap = 5.17
+
+    def run(self, images, draw):
+        original, img = images
+        lines = cv2.HoughLinesP(
+            img,  # Input edge image
+            self.rho,  # Distance resolution in pixels
+            self.theta,  # Angle resolution in radians
+            threshold=self.threshold,  # Min number of votes for valid line
+            minLineLength=self.minLineLength,  # Min allowed length of line
+            maxLineGap=self.maxLineGap,  # Max allowed gap between line for joining them
+        )
+        lines_list = []
+        out = 0 if lines is None else len(lines)
+        Debug.text("Num of lines", f"{out}")
+        if lines is not None:
+            Debug.text("Lines", f"{lines}")
+            lines = np.uint16(np.around(lines))
+            if draw:
+                for points in lines:
+                    # Extracted points nested in the list
+                    x1, y1, x2, y2 = points[0]
+                    # Draw the lines joing the points
+                    # On the original image
+                    cv2.line(original, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    # Maintain a simples lookup list for points
+                    lines_list.append([(x1, y1), (x2, y2)])
+                    # draw the outer circle
+
+                    # draw the center of the circle
+                    # cv2.circle(original, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+        return original
+
+    def filter_ui(self):
+        changed, value = imgui.slider_float(
+            "Resolution in pixels",
+            value=self.rho,
+            min_value=0,
+            max_value=10,
+            format="%f",
+        )
+        if changed:
+            self.rho = value
+
+        changed, value = imgui.slider_float(
+            "Min Line Length",
+            value=self.minLineLength,
+            min_value=0,
+            max_value=100,
+            format="%f",
+        )
+        if changed:
+            self.minLineLength = value
+
+        changed, value = imgui.slider_float(
+            "Max Line gap",
+            value=self.maxLineGap,
+            min_value=0,
+            max_value=100,
+            format="%f",
+        )
+        if changed:
+            self.maxLineGap = value
+
+        changed, value = imgui.slider_int(
+            "Umbral",
+            value=self.threshold,
+            min_value=0,
+            max_value=1000,
+        )
+        if changed:
+            self.threshold = value
 
 
 class BallDetectorStage(Stage):
@@ -130,23 +214,33 @@ class BallDetectorStage(Stage):
 
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, 2)
 
-        max_contour = 0
+        min_contour_error = float("inf")
         ball = None
 
         for contour in contours:
             M = cv2.moments(contour)
-            if M["m00"] > max_contour:
-                cx = int(M['m10']/M['m00'])
-                cy = int(M['m01']/M['m00'])
-                ball = Ball(cx, cy, color=self.ball_color)
+            area = M["m00"]
+            if area:
+                cx = int(M["m10"] / M["m00"])
+                cy = int(M["m01"] / M["m00"])
+                p_ball = Ball(cx, cy, color=self.ball_color)
+                contour_error = abs(area - p_ball.r**2 * np.pi)
+                if contour_error < min_contour_error:
+                    min_contour_error = contour_error
+                    ball = p_ball
+                # if M["m00"] > ball.r**2 * np.pi:
+                #     continue
 
         if ball is not None:
             BallManager.push(ball)
 
             if draw:
                 cv2.circle(
-                    original, (ball.x, ball.y), ball.r,
-                    ball.color.get_BGR()[::-1], -1,
+                    original,
+                    (ball.x, ball.y),
+                    ball.r,
+                    ball.color.get_BGR()[::-1],
+                    -1,
                 )
 
         return original
@@ -156,13 +250,15 @@ class RedBallMaskStage(MaskStage):
     lower = np.array([147.0, 175.0, 35.0])
     upper = np.array([207.0, 255.0, 255.0])
 
+
 class RedBallDetectorStage(BallDetectorStage):
     ball_color = BallColor.RED
 
 
 class YellowBallMaskStage(MaskStage):
-    lower = np.array([0.0, 130.0, 100.0])
+    lower = np.array([0.0, 140.0, 100.0])
     upper = np.array([30.0, 255.0, 255.0])
+
 
 class YellowBallDetectorStage(BallDetectorStage):
     ball_color = BallColor.YELLOW
@@ -170,10 +266,24 @@ class YellowBallDetectorStage(BallDetectorStage):
 
 class WhiteBallMaskStage(MaskStage):
     lower = np.array([0.0, 0.0, 160.0])
-    upper = np.array([30.0, 115.0, 255.0])
+    upper = np.array([30.0, 97.0, 255.0])
+
+
+class PaloMaskStage(MaskStage):
+    # lower = np.array([0.0, 5.0, 88.0])
+    # lower = np.array([0.0, 0.0, 30.0])
+    lower = np.array([0.0, 44.0, 76.0])
+    # upper = np.array([193.0, 100.0, 198.0])
+    # upper = np.array([109.0, 120.0, 195.0])
+    upper = np.array([109.0, 120.0, 155.0])
+
 
 class WhiteBallDetectorStage(BallDetectorStage):
     ball_color = BallColor.WHITE
+
+
+# class HoughLinesStage(BallDetectorStage):
+#     ball_color = BallColor.WHITE
 
 
 class ContourStage(Stage):
