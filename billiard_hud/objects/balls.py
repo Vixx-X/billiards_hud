@@ -1,7 +1,7 @@
 import enum
 from managers.debug import Debug
 
-RADIUS = 20
+RADIUS = 18
 
 
 class BallColor(enum.Enum):

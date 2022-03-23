@@ -11,7 +11,11 @@ from filters import (
     YellowBallMaskStage,
     CannyStage,
     HoughLinesStage,
+    NegativeStage,
+    AndStage,
     StickMaskStage,
+    OpenStage,
+    ErosionStage,
 )
 from managers.pipeline import manager as Pipeline
 from managers.collision import manager as Collision
@@ -35,6 +39,10 @@ def compile_pipeline():
     Pipeline("Yellow Ball Detector", YellowBallDetectorStage)
 
     Pipeline("Canny", CannyStage)
+    # Pipeline("Negative Mask", NegativeStage)
+    # Pipeline("Open Mask", OpenStage)
+    # Pipeline("Erosion Mask", ErosionStage)
+    # Pipeline("And Mask", AndStage)
     Pipeline("Stick Mask", StickMaskStage)
     Pipeline("Stick Detector", HoughLinesStage)
 
@@ -54,11 +62,6 @@ def pipeline(img):
     # table
     Pipeline.run("Table Detector", (original, closing_image))
 
-    # stick
-    stick_mask = Pipeline.run("Stick Mask", original)
-    canny_image = Pipeline.run("Canny", stick_mask)
-    Pipeline.run("Stick Detector", (original, stick_mask))
-
     # balls
     red_ball_mask = Pipeline.run("Red Ball Mask", blur_img)
     Pipeline.run("Red Ball Detector", (original, red_ball_mask))
@@ -68,6 +71,15 @@ def pipeline(img):
 
     yellow_ball_mask = Pipeline.run("Yellow Ball Mask", blur_img)
     Pipeline.run("Yellow Ball Detector", (original, yellow_ball_mask))
+
+    # stick
+    stick_mask = Pipeline.run("Stick Mask", original)
+    # negative_mask = Pipeline.run("Negative Mask", white_ball_mask)
+    # open_mask = Pipeline.run("Open Mask", negative_mask)
+    # erosion_mask = Pipeline.run("Erosion Mask", open_mask)
+    # and_mask = Pipeline.run("And Mask", (erosion_mask, stick_mask))
+    # canny_image = Pipeline.run("Canny", stick_mask)
+    Pipeline.run("Stick Detector", (original, stick_mask))
 
 
 def get_result():

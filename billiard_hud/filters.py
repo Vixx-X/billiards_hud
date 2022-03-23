@@ -100,6 +100,60 @@ class CloseStage(Stage):
             self.kernel_shape = value
 
 
+class OpenStage(Stage):
+
+    kernel_shape = (9, 9)
+
+    def run(self, img, draw):
+        return cv2.morphologyEx(
+            img,
+            cv2.MORPH_OPEN,
+            cv2.getStructuringElement(cv2.MORPH_CROSS, self.kernel_shape),
+        )
+
+    def filter_ui(self):
+        changed, value = imgui.slider_int2(
+            "Kernel shape",
+            value0=self.kernel_shape[0],
+            value1=self.kernel_shape[1],
+            min_value=3,
+            max_value=27,
+            format="%d",
+        )
+        if changed:
+            self.kernel_shape = value
+
+
+class ErosionStage(Stage):
+
+    kernel_shape = (9, 9)
+    iterations = 3
+
+    def run(self, img, draw):
+        return cv2.erode(img, self.kernel_shape, iterations=self.iterations)
+
+    def filter_ui(self):
+        changed, value = imgui.slider_int2(
+            "Kernel shape",
+            value0=self.kernel_shape[0],
+            value1=self.kernel_shape[1],
+            min_value=3,
+            max_value=27,
+            format="%d",
+        )
+        if changed:
+            self.kernel_shape = value
+
+        changed, value = imgui.slider_int(
+            "Iterations",
+            value=self.iterations,
+            min_value=0,
+            max_value=10,
+        )
+        if changed:
+            self.iterations = value
+
+
 class MaskingStage(Stage):
     def run(self, images):
         img, mask = images
@@ -125,6 +179,17 @@ class CannyStage(Stage):
             self.thresh = value
 
 
+class NegativeStage(Stage):
+    def run(self, img, draw=False):
+        return cv2.bitwise_not(img)
+
+
+class AndStage(Stage):
+    def run(self, images, draw=False):
+        img1, img2 = images
+        return cv2.bitwise_and(img1, img2)
+
+
 class HoughLinesStage(Stage):
 
     rho = 1.48
@@ -146,22 +211,21 @@ class HoughLinesStage(Stage):
         lines_list = []
         out = 0 if lines is None else len(lines)
         Debug.text("Num of lines", f"{out}")
+        max_dist = 0
+        max_line = 0
         if lines is not None:
             Debug.text("Lines", f"{lines}")
             lines = np.uint16(np.around(lines))
+            for idx, points in enumerate(lines):
+                # Extracted points nested in the list
+                x1, y1, x2, y2 = points[0]
+                dist = np.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+                if dist > max_dist:
+                    max_dist = dist
+                    max_line = idx
             if draw:
-                for points in lines:
-                    # Extracted points nested in the list
-                    x1, y1, x2, y2 = points[0]
-                    # Draw the lines joing the points
-                    # On the original image
-                    cv2.line(original, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    # Maintain a simples lookup list for points
-                    lines_list.append([(x1, y1), (x2, y2)])
-                    # draw the outer circle
-
-                    # draw the center of the circle
-                    # cv2.circle(original, (i[0], i[1]), 2, (0, 0, 255), 3)
+                x1, y1, x2, y2 = lines[max_line][0]
+                cv2.line(original, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
         return original
 
@@ -208,11 +272,15 @@ class HoughLinesStage(Stage):
 
 class BallDetectorStage(Stage):
     ball_color = BallColor.ERROR
+    draw_contour = True
 
     def run(self, images, draw):
         original, img = images
 
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, 2)
+
+        if draw and self.draw_contour:
+            cv2.drawContours(original, contours, -1, (255, 0, 0), 3)
 
         min_contour_error = float("inf")
         ball = None
@@ -220,11 +288,15 @@ class BallDetectorStage(Stage):
         for contour in contours:
             M = cv2.moments(contour)
             area = M["m00"]
+            length = cv2.arcLength(contour, True)
             if area:
                 cx = int(M["m10"] / M["m00"])
                 cy = int(M["m01"] / M["m00"])
                 p_ball = Ball(cx, cy, color=self.ball_color)
-                contour_error = abs(area - p_ball.r**2 * np.pi)
+                contour_error = abs(area - p_ball.r**2 * np.pi) + abs(
+                    length - 2 * np.pi * p_ball.r
+                )
+
                 if contour_error < min_contour_error:
                     min_contour_error = contour_error
                     ball = p_ball
@@ -244,6 +316,14 @@ class BallDetectorStage(Stage):
                 )
 
         return original
+
+    def filter_ui(self):
+        changed, value = imgui.checkbox(
+            label="Play/Stop",
+            state=self.draw_contour,
+        )
+        if changed:
+            self.draw_contour = value
 
 
 class RedBallMaskStage(MaskStage):
@@ -265,8 +345,8 @@ class YellowBallDetectorStage(BallDetectorStage):
 
 
 class WhiteBallMaskStage(MaskStage):
-    lower = np.array([0.0, 0.0, 160.0])
-    upper = np.array([30.0, 97.0, 255.0])
+    lower = np.array([12.0, 0.0, 151.0])
+    upper = np.array([56.0, 125.0, 255.0])
 
 
 class WhiteBallDetectorStage(BallDetectorStage):
