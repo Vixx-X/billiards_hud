@@ -1,4 +1,5 @@
 import cv2
+from managers.balls import manager as BallManager
 
 class Stage:
     id = ""
@@ -65,7 +66,7 @@ class PipelineManager:
         return out
 
 def draw_detections(img):
-    #TODO: Draw detections here
+    BallManager.draw(img)
     return img
 
 manager = PipelineManager()

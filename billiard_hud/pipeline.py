@@ -1,5 +1,6 @@
 from filters import BlurStage, CloseStage, MaskStage, RedBallDetectorStage, RedBallMaskStage, ContourStage, WhiteBallDetectorStage, WhiteBallMaskStage, YellowBallDetectorStage, YellowBallMaskStage
 from managers.pipeline import manager as Pipeline
+from managers.collision import manager as Collision
 
 
 def compile_pipeline():
@@ -52,4 +53,5 @@ def pipeline(img):
 
 
 def get_result():
+    Collision.run()
     return Pipeline.get_image()
