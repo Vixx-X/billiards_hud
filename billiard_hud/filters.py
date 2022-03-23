@@ -1,9 +1,12 @@
 import cv2
 import imgui
 from managers.pipeline import Stage
-from managers.debug import Debug
 import numpy as np
 import colorsys
+
+from managers.balls import manager as BallManager
+
+from objects.balls import Ball, BallColor
 
 
 class BlurStage(Stage):
@@ -13,7 +16,7 @@ class BlurStage(Stage):
 
     def run(self, img, draw):
         for _ in range(self.iterations):
-            img = cv2.blur(img, self.kernel_shape)
+            img = cv2.GaussianBlur(img, self.kernel_shape, 0)
         return img
 
     def filter_ui(self):
@@ -119,9 +122,43 @@ class MaskingStage(Stage):
 #             self.thresh = value
 
 
-class RedBallStage(MaskStage):
-    lower = np.array([110.0, 0.0, 0.0])
-    upper = np.array([130.0, 255.0, 255.0])
+class BallDetectorStage(Stage):
+    ball_color = BallColor.ERROR
+
+    def run(self, images, draw):
+        original, img = images
+
+        contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, 2)
+
+        max_contour = 0
+        ball = None
+
+        for contour in contours:
+            M = cv2.moments(contour)
+            if M["m00"] > max_contour:
+                cx = int(M['m10']/M['m00'])
+                cy = int(M['m01']/M['m00'])
+                ball = Ball(cx, cy, color=self.ball_color)
+
+        if ball is not None:
+            BallManager.push(ball)
+
+            if draw:
+                cv2.circle(
+                    original, (ball.x, ball.y), ball.r,
+                    ball.color.get_BGR(), -1,
+                )
+
+        return original
+
+class RedBallDetectorStage(BallDetectorStage):
+    ball_color = BallColor.RED
+
+
+class RedBallMaskStage(MaskStage):
+    lower = np.array([147.0, 175.0, 35.0])
+    upper = np.array([207.0, 255.0, 255.0])
+
 
 
 class ContourStage(Stage):
