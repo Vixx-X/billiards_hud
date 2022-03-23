@@ -146,7 +146,7 @@ class BallDetectorStage(Stage):
             if draw:
                 cv2.circle(
                     original, (ball.x, ball.y), ball.r,
-                    ball.color.get_BGR(), -1,
+                    ball.color.get_BGR()[::-1], -1,
                 )
 
         return original
