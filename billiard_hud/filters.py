@@ -272,10 +272,10 @@ class WhiteBallMaskStage(MaskStage):
 class PaloMaskStage(MaskStage):
     # lower = np.array([0.0, 5.0, 88.0])
     # lower = np.array([0.0, 0.0, 30.0])
-    lower = np.array([0.0, 44.0, 76.0])
+    lower = np.array([5.0, 13.0, 90.0])
     # upper = np.array([193.0, 100.0, 198.0])
     # upper = np.array([109.0, 120.0, 195.0])
-    upper = np.array([109.0, 120.0, 155.0])
+    upper = np.array([21.0, 106.0, 255.0])
 
 
 class WhiteBallDetectorStage(BallDetectorStage):

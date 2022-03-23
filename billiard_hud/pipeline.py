@@ -57,7 +57,7 @@ def pipeline(img):
     Pipeline.run("Table Detector", (original, closing_image))
 
     # palo
-    palo_mask = Pipeline.run("Palo Mask", blur_img)
+    palo_mask = Pipeline.run("Palo Mask", original)
     canny_image = Pipeline.run("Canny", palo_mask)
     Pipeline.run("Hough Lines", (original, palo_mask))
 
