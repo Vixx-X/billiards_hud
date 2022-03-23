@@ -16,12 +16,14 @@ from pipeline import compile_pipeline, pipeline, get_result
 WIDTH, HEIGHT = 1280, 720
 image = None
 
+
 def main():
 
     window = pyglet.window.Window(width=WIDTH, height=HEIGHT, resizable=True)
     gl.glClearColor(0, 0, 0, 1)
     imgui.create_context()
     impl = create_renderer(window)
+    # impl.io.backend_flags |= imgui.CONFIG_NAV_ENABLE_KEYBOARD
 
     compile_pipeline()
 
@@ -54,7 +56,7 @@ def main():
                 Debug.time("Processing")
 
                 Debug.time("Bliting to Tex")
-                image = ArrayInterfaceImage(out)
+                image = ArrayInterfaceImage(out).get_texture()
                 Debug.time("Bliting to Tex")
                 return
 
