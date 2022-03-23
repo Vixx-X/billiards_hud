@@ -268,18 +268,19 @@ class WhiteBallMaskStage(MaskStage):
     lower = np.array([0.0, 0.0, 160.0])
     upper = np.array([30.0, 97.0, 255.0])
 
+class WhiteBallDetectorStage(BallDetectorStage):
+    ball_color = BallColor.WHITE
 
-class PaloMaskStage(MaskStage):
+
+class StickMaskStage(MaskStage):
     # lower = np.array([0.0, 5.0, 88.0])
     # lower = np.array([0.0, 0.0, 30.0])
     lower = np.array([0.0, 44.0, 76.0])
     # upper = np.array([193.0, 100.0, 198.0])
     # upper = np.array([109.0, 120.0, 195.0])
-    upper = np.array([109.0, 120.0, 155.0])
+    upper = np.array([109.0, 120.0, 255.0])
 
 
-class WhiteBallDetectorStage(BallDetectorStage):
-    ball_color = BallColor.WHITE
 
 
 # class HoughLinesStage(BallDetectorStage):
@@ -298,15 +299,16 @@ class ContourStage(Stage):
         # avg = cv2.add(self.counter_stage, img) / 2
 
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, 2)
-        max_contour = 0
 
-        for idx, contour in enumerate(contours):
+        max_contour = 0
+        cnt = None
+        for contour in contours:
             M = cv2.moments(contour)
             if M["m00"] > max_contour:
-                max_contour = idx
+                max_contour = M["m00"]
+                cnt = contour
 
-        if draw:
-            cnt = contours[max_contour]
+        if draw and cnt is not None:
             epsilon = self.eps * cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, epsilon, True)
             cv2.drawContours(original, contours, -1, (255, 0, 0), 3)
