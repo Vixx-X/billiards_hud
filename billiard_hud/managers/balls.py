@@ -37,7 +37,7 @@ class BallManager:
         elif color == BallColor.RED:
             return self.red_positions
         elif color == BallColor.YELLOW:
-            return self.white_positions
+            return self.yellow_positions
         raise Exception("Unknown color")
 
     def push(self, ball):
