@@ -54,6 +54,7 @@ class Ball:
     x = 0
     y = 0
     color = BallColor.ERROR
+    velocity = 0
 
     def __init__(self, x, y, color=None) -> None:
         self.x = x

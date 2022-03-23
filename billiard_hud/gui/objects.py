@@ -1,32 +1,59 @@
 from managers.balls import manager as BallManager
+from managers.collision import manager as CollisionManager
 import imgui
 
-def entity_panel():
-    imgui.begin("Entities")
+from objects.balls import BallColor
 
-    # imgui.text_wrapped(
-    #     "This text should automatically wrap on the edge of the window. The current implementation for text wrapping follows simple rules suitable for English and possibly other languages."
-    # )
+def stick_part():
+    imgui.text("Stick")
+    for ball in CollisionManager.BALLS:
+        imgui.label_text(ball, str(CollisionManager.data["Stick"][ball]))
 
-    # if imgui.tree_node("Balls"):
-    #     for name, time in Debug.get_times().items():
-    #         imgui.label_text(name, f"{time*1000} ms")
-    #     imgui.tree_pop()
 
-    imgui.spacing()
+name2color = {
+    CollisionManager.BALLS[0] : BallColor.RED,
+    CollisionManager.BALLS[1] : BallColor.WHITE,
+    CollisionManager.BALLS[2] : BallColor.YELLOW,
+}
+
+def ball_part():
     imgui.text("Balls")
+    for ball in CollisionManager.BALLS:
+        if imgui.tree_node(ball):
+            color = name2color[ball]
+            speeds = BallManager.get_speeds(color)
+            imgui.label_text("AVG", str(speeds[0]))
+            imgui.label_text("MIN", str(speeds[1]))
+            imgui.label_text("MAX", str(speeds[2]))
+            for name, values in CollisionManager.data["Balls"][ball].items():
+                imgui.label_text(name, str(values))
+            imgui.tree_pop()
+
+def wall_part():
+    imgui.text("Walls")
+    for wall in CollisionManager.WALLS:
+        if imgui.tree_node(wall):
+            for name, values in CollisionManager.data["Walls"][wall].items():
+                imgui.label_text(name, str(values))
+            imgui.tree_pop()
+
+
+def log_part():
+    imgui.text("Events")
 
     imgui.spacing()
-    imgui.text("Red")
+    for log in CollisionManager.logs:
+        imgui.text_wrapped(log)
 
-    imgui.spacing()
-    imgui.text("White")
+def entity_panel():
+    imgui.begin("Entities Collisions and Events")
 
-    imgui.spacing()
-    imgui.text("Yellow")
-
+    stick_part()
     imgui.separator()
-
-    imgui.spacing()
+    ball_part()
+    imgui.separator()
+    wall_part()
+    imgui.separator()
+    log_part()
 
     imgui.end()
