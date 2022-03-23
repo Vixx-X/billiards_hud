@@ -8,6 +8,7 @@ class BallManager:
     red_positions = []
     yellow_positions = []
     white_positions = []
+    show_tracelines = False
 
     speed_accums = {
         BallColor.WHITE: 0,
@@ -26,6 +27,11 @@ class BallManager:
         BallColor.RED: 0,
         BallColor.YELLOW: 0,
     }
+
+    def clear(self):
+        self.red_positions = []
+        self.yellow_positions = []
+        self.white_positions = []
 
     def get_speeds(self, color):
         hist = max(len(self.get_positions_by_color(color)), 1)
@@ -72,6 +78,17 @@ class BallManager:
                     ball.color.get_BGR()[::-1],
                     -1,
                 )
+            if self.show_tracelines:
+                for i in range(len(ball_pos) -1):
+                    a, b = ball_pos[i], ball_pos[i+1]
+                    cv2.line(
+                        img,
+                        (a.x,a.y),
+                        (b.x, b.y),
+                        a.color.get_BGR()[::-1],
+                        3,
+                    )
+
 
 
 manager = BallManager()

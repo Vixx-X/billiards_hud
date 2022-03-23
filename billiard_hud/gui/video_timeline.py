@@ -2,6 +2,7 @@ import imgui
 from managers.media import manager as Media
 from managers.table import manager as Table
 from managers.pipeline import manager as Pipeline
+from managers.balls import manager as Ball
 
 
 def video_panel():
@@ -56,6 +57,14 @@ def video_panel():
 
         if changed:
             Pipeline.show_detections = value
+
+        changed, value = imgui.checkbox(
+            label="Show traceline",
+            state=Ball.show_tracelines,
+        )
+
+        if changed:
+            Ball.show_tracelines = value
 
         changed, value = imgui.checkbox(
             label="Warp perspective",

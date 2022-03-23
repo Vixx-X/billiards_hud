@@ -78,6 +78,7 @@ class CollisionManager:
                         self.data["Balls"][ball2][ball] += 1
                         self.before_state[rel_name] = True
                         msg = f"[{frame}] {ball} colide with {ball2}"
+                        msg = f"[{frame}] {ball2} colide with {ball}"
                         self.logs.append(msg)
                 else:
                     self.before_state[rel_name] = False
@@ -92,6 +93,7 @@ class CollisionManager:
                     msg = f"[{frame}] Stick strike {ball}"
                     self.logs.append(msg)
 
+                    Balls.clear()
                     # clear positions on Balls
             else:
                 self.before_state[rel_name] = False

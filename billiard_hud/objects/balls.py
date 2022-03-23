@@ -68,7 +68,7 @@ class Ball:
 
     def is_intercepting(self, ball):
         (x1, y1), (x2, y2) = (self.x, self.y), (ball.x, ball.y)
-        return (x2 - x1) ** 2 + (y2 - y1) ** 2 <= (self.r + ball.r) ** 2
+        return (x2 - x1) ** 2 + (y2 - y1) ** 2 <= (self.r + ball.r) ** 2 + self.r
 
     def is_overlapping(self, ball):
         (x1, y1), (x2, y2) = (self.x, self.y), (ball.x, ball.y)

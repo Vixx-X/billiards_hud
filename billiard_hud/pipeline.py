@@ -38,7 +38,7 @@ def compile_pipeline():
     Pipeline("Yellow Ball Mask", YellowBallMaskStage)
     Pipeline("Yellow Ball Detector", YellowBallDetectorStage)
 
-    Pipeline("Canny", CannyStage)
+    # Pipeline("Canny", CannyStage)
     # Pipeline("Negative Mask", NegativeStage)
     Pipeline("Open Mask", OpenStage)
     # Pipeline("Erosion Mask", ErosionStage)

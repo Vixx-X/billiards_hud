@@ -22,9 +22,9 @@ def ball_part():
         if imgui.tree_node(ball):
             color = name2color[ball]
             speeds = BallManager.get_speeds(color)
-            imgui.label_text("AVG", str(speeds[0]))
-            imgui.label_text("MIN", str(speeds[1]))
-            imgui.label_text("MAX", str(speeds[2]))
+            imgui.label_text("AVG speeds", f"{speeds[0]} cm/s")
+            imgui.label_text("MIN speeds", f"{speeds[1]} cm/s")
+            imgui.label_text("MAX speeds", f"{speeds[2]} cm/s")
             for name, values in CollisionManager.data["Balls"][ball].items():
                 imgui.label_text(name, str(values))
             imgui.tree_pop()
