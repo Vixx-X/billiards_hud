@@ -40,7 +40,7 @@ def compile_pipeline():
 
     Pipeline("Canny", CannyStage)
     # Pipeline("Negative Mask", NegativeStage)
-    # Pipeline("Open Mask", OpenStage)
+    Pipeline("Open Mask", OpenStage)
     # Pipeline("Erosion Mask", ErosionStage)
     # Pipeline("And Mask", AndStage)
     Pipeline("Stick Mask", StickMaskStage)
@@ -75,11 +75,10 @@ def pipeline(img):
     # stick
     stick_mask = Pipeline.run("Stick Mask", original)
     # negative_mask = Pipeline.run("Negative Mask", white_ball_mask)
-    # open_mask = Pipeline.run("Open Mask", negative_mask)
+    close_mask = Pipeline.run("Closing", stick_mask)
     # erosion_mask = Pipeline.run("Erosion Mask", open_mask)
     # and_mask = Pipeline.run("And Mask", (erosion_mask, stick_mask))
-    # canny_image = Pipeline.run("Canny", stick_mask)
-    Pipeline.run("Stick Detector", (original, stick_mask))
+    Pipeline.run("Stick Detector", (original, close_mask))
 
 
 def get_result():

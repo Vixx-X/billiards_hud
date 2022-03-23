@@ -66,9 +66,9 @@ class PipelineManager:
                     [0, out.shape[0]],
                     [out.shape[1], out.shape[0]],
                 ],
-                key=lambda k: (k[0], k[1]),
+                key=lambda k: (k[1], k[0]),
             )
-            old_p = sorted(TableManager.get_points(), key=lambda k: (k[0], k[1]))
+            old_p = sorted(TableManager.get_points(), key=lambda k: (k[1], k[0]))
             print(new_p, "Aaaa", old_p)
             M = cv2.getPerspectiveTransform(old_p, new_p)
             out = cv2.warpPerspective(out, M, out.shape[:2])

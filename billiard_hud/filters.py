@@ -193,7 +193,7 @@ class HoughLinesStage(Stage):
 
     rho = 1.48
     theta = np.pi / 180
-    threshold = 100
+    threshold = 217
     minLineLength = 60
     maxLineGap = 30
 
