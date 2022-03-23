@@ -1,5 +1,7 @@
 import imgui
 from managers.media import manager as Media
+from managers.table import manager as Table
+from managers.pipeline import manager as Pipeline
 
 def video_panel():
 
@@ -38,6 +40,21 @@ def video_panel():
             Media.set_start(start)
             Media.set_end(end)
 
+
+        changed, value = imgui.checkbox(
+            label="Show detections",
+            state=Pipeline.show_detections,
+        )
+
+        if changed:
+            Pipeline.show_detections = value
+
+        changed, value = imgui.checkbox(
+            label="Warp perspective",
+            state=Table.fake_perspective,
+        )
+
+        if changed:
+            Table.fake_perspective = value
+
         imgui.end()
-
-
