@@ -131,7 +131,7 @@ class HoughLinesStage(Stage):
     theta = np.pi / 180
     threshold = 100
     minLineLength = 60
-    maxLineGap = 5.17
+    maxLineGap = 30
 
     def run(self, images, draw):
         original, img = images
