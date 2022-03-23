@@ -7,7 +7,7 @@ class DebugManager:
     timers = dict()
     ptime = None
 
-    scale_factor = 4
+    scale_factor = 1
 
     def clear_times(self):
         self.timers = dict()

@@ -1,7 +1,6 @@
 import enum
 
 import cv2
-from cv2 import arcLength
 import numpy as np
 
 
@@ -57,7 +56,7 @@ class TableManager:
 
     def get_points(self):
         if len(self.contour) == 4:
-            return [x[0] for x in self.contour]
+            return [[x[0].tolist()] for x in self.contour]
         return [
             [self.points[0][0], self.points[0][1]],
             [self.points[1][0], self.points[0][1]],
@@ -67,8 +66,7 @@ class TableManager:
 
     def draw(self, img):
         if self.fake_perspective:
-            points = [[x.tolist()] for x in self.get_points()]
-            cv2.drawContours(img, np.array([points]), -1, (125, 125, 0), 3)
+            cv2.drawContours(img, np.array([self.get_points()]), -1, (125, 125, 0), 3)
         else:
             cv2.drawContours(img, [self.contour], -1, (125, 125, 0), 3)
 

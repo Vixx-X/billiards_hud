@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from managers.balls import manager as BallManager
+from managers.debug import Debug
 from managers.table import manager as TableManager
 
 
@@ -58,25 +59,57 @@ class PipelineManager:
         if len(out.shape) == 2:
             out = cv2.cvtColor(out, cv2.COLOR_GRAY2RGB)
 
+        if not self.show_detections:
+            return out
+
+        out = draw_detections(out)
+
         if TableManager.fake_perspective:
-            new_p = sorted(
-                [
+            new_p =[
                     [0, 0],
                     [out.shape[1], 0],
                     [0, out.shape[0]],
                     [out.shape[1], out.shape[0]],
-                ],
-                key=lambda k: (k[0], k[1]),
-            )
-            old_p = sorted(TableManager.get_points(), key=lambda k: (k[0], k[1]))
-            print(new_p, "Aaaa", old_p)
-            M = cv2.getPerspectiveTransform(old_p, new_p)
-            out = cv2.warpPerspective(out, M, out.shape[:2])
+                ]
 
-        if not self.show_detections:
-            return out
+            old_p = [ x[0] for x in TableManager.get_points() ]
 
-        return draw_detections(out)
+            mnnew_p = sorted(new_p, key=lambda k: (k[1] + k[0]))
+            mnold_p = sorted(old_p, key=lambda k: (k[1] + k[0]))
+
+            snew_p = [mnnew_p[0]] + sorted([i for i in new_p if i not in [mnnew_p[0], mnnew_p[3]] ], key=lambda k: (k[1], k[0])) + [mnnew_p[3]]
+            sold_p = [mnold_p[0]] + sorted([i for i in old_p if i not in [mnold_p[0], mnold_p[3]] ], key=lambda k: (k[1], k[0])) + [mnold_p[3]]
+
+            nsnew_p = np.float32(snew_p)
+            nsold_p = np.float32(sold_p)
+
+            # col = [
+            #     (13, 128, 79),
+            #     (13, 128, 255),
+            #     (323, 128, 255),
+            #     (13, 232, 23),
+            # ]
+            # for idx, point in enumerate(nsnew_p):
+            #     cv2.circle(
+            #         out,
+            #         (int(point[0]), int(point[1])),
+            #         30,
+            #         col[idx],
+            #         -1,
+            #     )
+
+            # for idx, point in enumerate(nsold_p):
+            #     cv2.circle(
+            #         out,
+            #         (int(point[0]), int(point[1])),
+            #         30,
+            #         col[idx],
+            #         -1,
+            #     )
+
+            M = cv2.getPerspectiveTransform(nsold_p, nsnew_p)
+            out = cv2.warpPerspective(out, M, (out.shape[1], out.shape[0]))
+        return out
 
     def run(self, name, img):
         out = self.stages[name].run(img, self.selected_stage == name)
