@@ -151,14 +151,29 @@ class BallDetectorStage(Stage):
 
         return original
 
-class RedBallDetectorStage(BallDetectorStage):
-    ball_color = BallColor.RED
-
 
 class RedBallMaskStage(MaskStage):
     lower = np.array([147.0, 175.0, 35.0])
     upper = np.array([207.0, 255.0, 255.0])
 
+class RedBallDetectorStage(BallDetectorStage):
+    ball_color = BallColor.RED
+
+
+class YellowBallMaskStage(MaskStage):
+    lower = np.array([0.0, 130.0, 100.0])
+    upper = np.array([30.0, 255.0, 255.0])
+
+class YellowBallDetectorStage(BallDetectorStage):
+    ball_color = BallColor.YELLOW
+
+
+class WhiteBallMaskStage(MaskStage):
+    lower = np.array([0.0, 0.0, 160.0])
+    upper = np.array([30.0, 115.0, 255.0])
+
+class WhiteBallDetectorStage(BallDetectorStage):
+    ball_color = BallColor.WHITE
 
 
 class ContourStage(Stage):
