@@ -11,7 +11,7 @@ from filters import (
     YellowBallMaskStage,
     CannyStage,
     HoughLinesStage,
-    PaloMaskStage,
+    StickMaskStage,
 )
 from managers.pipeline import manager as Pipeline
 from managers.collision import manager as Collision
@@ -35,10 +35,8 @@ def compile_pipeline():
     Pipeline("Yellow Ball Detector", YellowBallDetectorStage)
 
     Pipeline("Canny", CannyStage)
-    Pipeline("Palo Mask", PaloMaskStage)
-    Pipeline("Hough Lines", HoughLinesStage)
-
-    Pipeline("Stick Detector")
+    Pipeline("Stick Mask", StickMaskStage)
+    Pipeline("Stick Detector", HoughLinesStage)
 
 
 def pipeline(img):
@@ -56,10 +54,10 @@ def pipeline(img):
     # table
     Pipeline.run("Table Detector", (original, closing_image))
 
-    # palo
-    palo_mask = Pipeline.run("Palo Mask", original)
-    canny_image = Pipeline.run("Canny", palo_mask)
-    Pipeline.run("Hough Lines", (original, palo_mask))
+    # stick
+    stick_mask = Pipeline.run("Stick Mask", original)
+    canny_image = Pipeline.run("Canny", stick_mask)
+    Pipeline.run("Stick Detector", (original, stick_mask))
 
     # balls
     red_ball_mask = Pipeline.run("Red Ball Mask", blur_img)
@@ -70,9 +68,6 @@ def pipeline(img):
 
     yellow_ball_mask = Pipeline.run("Yellow Ball Mask", blur_img)
     Pipeline.run("Yellow Ball Detector", (original, yellow_ball_mask))
-
-    # stick
-    Pipeline.run("Stick Detector", closing_image)
 
 
 def get_result():
