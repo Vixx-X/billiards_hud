@@ -1,5 +1,3 @@
-from cmath import inf
-import math
 import cv2
 import imgui
 from managers.pipeline import Stage
@@ -8,6 +6,7 @@ import numpy as np
 import colorsys
 
 from managers.balls import manager as BallManager
+from managers.table import manager as TableManager
 
 from objects.balls import Ball, BallColor
 
@@ -228,8 +227,6 @@ class BallDetectorStage(Stage):
                 if contour_error < min_contour_error:
                     min_contour_error = contour_error
                     ball = p_ball
-                # if M["m00"] > ball.r**2 * np.pi:
-                #     continue
 
         if ball is not None:
             BallManager.push(ball)
@@ -307,11 +304,15 @@ class ContourStage(Stage):
                 max_contour = M["m00"]
                 cnt = contour
 
-        if draw and cnt is not None:
-            epsilon = self.eps * cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, epsilon, True)
-            cv2.drawContours(original, contours, -1, (255, 0, 0), 3)
-            cv2.drawContours(original, [approx], -1, (125, 125, 0), 3)
+        if cnt is not None:
+            TableManager.set(cnt)
+
+            if draw:
+                epsilon = self.eps * cv2.arcLength(cnt, True)
+                approx = cv2.approxPolyDP(cnt, epsilon, True)
+                cv2.drawContours(original, contours, -1, (255, 0, 0), 3)
+                cv2.drawContours(original, [approx], -1, (125, 125, 0), 3)
+
         return original
 
     def filter_ui(self):
